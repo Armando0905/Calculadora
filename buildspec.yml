@@ -1,0 +1,45 @@
+version: 1
+frontend:
+  phases:
+    # Instalación de dependencias de la aplicación
+    preBuild:
+      commands:
+        - npm install
+    # Compilación de la aplicación
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    # Especificación de los archivos generados por la compilación
+    baseDirectory: build/
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/
+
+backend:
+  phases:
+    # Instalación de dependencias de Python
+    preBuild:
+      commands:
+        - pip install -r requirements.txt
+    # Ejecución de pruebas
+    build:
+      commands:
+        - python -m pytest tests/
+    # Despliegue de la aplicación
+    postBuild:
+      commands:
+        - gunicorn app:app -b 0.0.0.0:$PORT --workers 4 --timeout 120
+  artifacts:
+    # Especificación de los archivos necesarios para ejecutar la aplicación
+    files:
+      - app.py
+      - requirements.txt
+      - templates/**
+      - static/**
+      - .ebextensions/**
+  cache:
+    paths:
+      - $HOME/.cache/pip/
